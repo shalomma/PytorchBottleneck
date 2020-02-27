@@ -63,7 +63,8 @@ if '__main__' == __name__:
     input_size = 28 * 28
     output_size = 10
     hidden_sizes = [1024, 20, 20, 20, 20]
-    net = FeedForward(input_size, hidden_sizes, output_size)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    net = FeedForward(input_size, hidden_sizes, output_size).to(device)
 
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=0.01)

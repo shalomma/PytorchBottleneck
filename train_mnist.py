@@ -15,6 +15,7 @@ class Train:
     def __init__(self, config):
         self.config = config
         self.epochs = 5000
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         self.losses = dict()
         self.running_mis_xt = dict()
@@ -42,8 +43,8 @@ class Train:
             for phase in ['train', 'test']:
                 running_loss = 0.0
 
-                for batch in loader[phase]:
-                    inputs, labels = batch[0], batch[1]
+                for inputs, labels in loader[phase]:
+                    inputs, labels = inputs.to(self.device), labels.to(self.device)
                     if phase == 'train':
                         self.config.model.train()
                     else:
@@ -60,7 +61,6 @@ class Train:
                     running_loss += loss.item()
                     self.losses[phase].append(loss)
                     # acc = (labels == outputs.argmax(dim=1)).sum() / float(len(inputs))
-
 
                     # if i % 10 == 0:
                     #     running_mi_xt = []
@@ -85,6 +85,7 @@ class Train:
             plt.plot(self.losses[phase], label=phase)
         plt.legend()
         plt.show()
+        plt.savefig('losses.png')
 
     def plot_info_plan(self, phase):
         plt.figure()
