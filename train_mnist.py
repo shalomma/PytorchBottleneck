@@ -28,7 +28,7 @@ class Train:
         self.n_classes = 10
 
     def get_label_masks(self, labels):
-        classes = labels.detach().numpy()
+        classes = labels.cpu().detach().numpy()
         samples_split = dict()
         for i in range(self.n_classes):
             samples_split[i] = classes == i
