@@ -54,16 +54,17 @@ if '__main__' == __name__:
 
     loader['train'] = torch.utils.data.DataLoader(
         datasets.MNIST('./dataset', train=True, download=True, transform=transforms_pipeline),
-        batch_size=128, shuffle=True)
+        batch_size=2048, shuffle=True)
     loader['test'] = torch.utils.data.DataLoader(
         datasets.MNIST('./dataset', train=False, transform=transforms_pipeline),
-        batch_size=128, shuffle=True)
+        batch_size=2048, shuffle=True)
 
     # setup
     input_size = 28 * 28
     output_size = 10
     hidden_sizes = [1024, 20, 20, 20, 20]
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f'to device: {device}')
     net = FeedForward(input_size, hidden_sizes, output_size).to(device)
 
     criterion = torch.nn.CrossEntropyLoss()
