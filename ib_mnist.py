@@ -1,8 +1,7 @@
 import numpy as np
-import utils
 import torch
 from torch.utils.data import DataLoader
-from torchvision import datasets, transforms
+from torchvision import datasets
 
 from random import seed
 
@@ -12,6 +11,19 @@ from train_mnist import Train, TrainConfig
 np.random.seed(1234)
 seed(1234)
 torch.manual_seed(1234)
+
+
+class MNIST(datasets.MNIST):
+    def __init__(self, root, train=True, download=False):
+        super(MNIST, self).__init__(root, train, download)
+
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.data = self.data / 255.0
+        self.data = self.data.view(-1, 28 * 28).to(device)
+
+    def __getitem__(self, index):
+        img, target = self.data[index], int(self.targets[index])
+        return img, target
 
 
 class IBDataset(DataLoader):
@@ -46,18 +58,12 @@ if '__main__' == __name__:
 
     loader = dict()
 
-    transforms_pipeline = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,)),
-        transforms.Lambda(lambda x: x.flatten())
-    ])
+    data = dict()
+    data['train'] = MNIST('./dataset', train=True, download=True)
+    data['test'] = MNIST('./dataset', train=False)
 
-    loader['train'] = torch.utils.data.DataLoader(
-        datasets.MNIST('./dataset', train=True, download=True, transform=transforms_pipeline),
-        batch_size=2048, shuffle=True)
-    loader['test'] = torch.utils.data.DataLoader(
-        datasets.MNIST('./dataset', train=False, transform=transforms_pipeline),
-        batch_size=2048, shuffle=True)
+    loader['train'] = torch.utils.data.DataLoader(data['train'], batch_size=2048, shuffle=True)
+    loader['test'] = torch.utils.data.DataLoader(data['test'], batch_size=2048, shuffle=True)
 
     # setup
     input_size = 28 * 28
