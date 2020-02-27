@@ -68,19 +68,16 @@ class Train:
                     phase_labels = torch.cat((phase_labels, labels))
                     phase_outputs = torch.cat((phase_outputs, outputs))
 
-                    # if i % 10 == 0:
-                    #     running_mi_xt = []
-                    #     running_mi_ty = []
-                    #     for j in range(len(self.config.model.hidden_sizes)):
-                    #         activity = hiddens[j].detach().numpy()
-                    #         label_masks = self.get_label_masks(labels)
-                    #         binxm, binym = simplebinmi.bin_calc_information2(label_masks, activity, bin_size)
-                    #         running_mi_xt.append(nats2bits * binxm)
-                    #         running_mi_ty.append(nats2bits * binym)
-                    #
-                    #     self.running_mis_xt[phase].append(running_mi_xt)
-                    #     self.running_mis_ty[phase].append(running_mi_ty)
+                    if i % 10 == 0:
+                        for j in range(len(self.config.model.hidden_sizes)):
+                            activity = hiddens[j].detach().numpy()
+                            label_masks = self.get_label_masks(labels)
+                            binxm, binym = simplebinmi.bin_calc_information2(label_masks, activity, bin_size)
+                            phase_mi_xt += nats2bits * binxm
+                            phase_mi_ty += nats2bits * binym
 
+                self.running_mis_xt[phase].append(phase_mi_xt)
+                self.running_mis_ty[phase].append(phase_mi_ty)
                 n = float(len(loader[phase].dataset))
                 loss = phase_loss / n
                 acc = (phase_labels == phase_outputs.argmax(dim=1)).sum() / n
@@ -102,6 +99,7 @@ class Train:
         plt.plot(self.running_mis_xt[phase])
         plt.plot(self.running_mis_ty[phase])
         plt.show()
+        plt.savefig(f'plot_{phase}.png')
 
         running_mis_xt = np.array(self.running_mis_xt[phase])
         running_mis_ty = np.array(self.running_mis_ty[phase])
@@ -116,3 +114,4 @@ class Train:
         plt.xlabel('I(X;M)')
         plt.ylabel('I(Y;M)')
         plt.show()
+        plt.savefig(f'IP_{phase}.png')

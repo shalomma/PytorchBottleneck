@@ -78,8 +78,8 @@ if '__main__' == __name__:
 
     cfg = TrainConfig(net, criterion, optimizer)
     train = Train(cfg)
-    train.epochs = 1000
+    train.epochs = 100
     train.run(loader)
     train.plot_losses()
-    # train.plot_info_plan('train')
-    # train.plot_info_plan('test')
+    train.plot_info_plan('train')
+    train.plot_info_plan('test')
