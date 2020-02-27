@@ -74,7 +74,7 @@ class Train:
                     running_mi_ty = []
                     _, hiddens = self.config.model(loader[phase].dataset.data)
                     for j in range(len(self.config.model.hidden_sizes)):
-                        activity = hiddens[j].detach().numpy()
+                        activity = hiddens[j].cpu().detach().numpy()
                         binxm, binym = simplebinmi.bin_calc_information2(class_masks[phase], activity, bin_size)
                         running_mi_xt.append(nats2bits * binxm)
                         running_mi_ty.append(nats2bits * binym)
