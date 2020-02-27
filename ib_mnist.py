@@ -79,6 +79,7 @@ if '__main__' == __name__:
     cfg = TrainConfig(net, criterion, optimizer)
     train = Train(cfg)
     train.epochs = 100
+    train.mi_cycle = 10
     train.run(loader)
     train.plot_losses()
     train.plot_info_plan('train')

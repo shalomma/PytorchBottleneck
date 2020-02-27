@@ -15,6 +15,7 @@ class Train:
     def __init__(self, config):
         self.config = config
         self.epochs = 5000
+        self.mi_cycle = 10
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         self.losses = dict()
@@ -27,15 +28,19 @@ class Train:
 
         self.n_classes = 10
 
-    def get_label_masks(self, labels):
-        classes = labels.cpu().detach().numpy()
+    def get_class_masks(self, loader):
         samples_split = dict()
-        for i in range(self.n_classes):
-            samples_split[i] = classes == i
+        for phase in ['train', 'test']:
+            samples_split[phase] = {}
+            classes = loader[phase].dataset.targets.cpu().detach().numpy()
+            for i in range(self.n_classes):
+                samples_split[phase][i] = classes == i
         return samples_split
 
     def run(self, loader):
-        bin_size = 0.07
+        class_masks = self.get_class_masks(loader)
+
+        bin_size = 0.5
         nats2bits = 1.0 / np.log(2)
 
         for i in range(self.epochs):
@@ -44,8 +49,6 @@ class Train:
                 phase_loss = 0.0
                 phase_labels = torch.tensor([], dtype=torch.long).to(self.device)
                 phase_outputs = torch.tensor([]).to(self.device)
-                phase_mi_xt = 0.0
-                phase_mi_ty = 0.0
 
                 for inputs, labels in loader[phase]:
                     inputs, labels = inputs.to(self.device), labels.to(self.device)
@@ -63,21 +66,22 @@ class Train:
                             self.config.optimizer.step()
 
                     phase_loss += loss.item()
-                    self.losses[phase].append(loss)
-
                     phase_labels = torch.cat((phase_labels, labels))
                     phase_outputs = torch.cat((phase_outputs, outputs))
 
-                    if i % 10 == 0:
-                        for j in range(len(self.config.model.hidden_sizes)):
-                            activity = hiddens[j].cpu().detach().numpy()
-                            label_masks = self.get_label_masks(labels)
-                            binxm, binym = simplebinmi.bin_calc_information2(label_masks, activity, bin_size)
-                            phase_mi_xt += nats2bits * binxm
-                            phase_mi_ty += nats2bits * binym
+                if i % self.mi_cycle == 0:
+                    running_mi_xt = []
+                    running_mi_ty = []
+                    _, hiddens = self.config.model(loader[phase].dataset.data)
+                    for j in range(len(self.config.model.hidden_sizes)):
+                        activity = hiddens[j].detach().numpy()
+                        binxm, binym = simplebinmi.bin_calc_information2(class_masks[phase], activity, bin_size)
+                        running_mi_xt.append(nats2bits * binxm)
+                        running_mi_ty.append(nats2bits * binym)
 
-                self.running_mis_xt[phase].append(phase_mi_xt)
-                self.running_mis_ty[phase].append(phase_mi_ty)
+                    self.running_mis_xt[phase].append(running_mi_xt)
+                    self.running_mis_ty[phase].append(running_mi_ty)
+
                 n = float(len(loader[phase].dataset))
                 loss = phase_loss / n
                 acc = (phase_labels == phase_outputs.argmax(dim=1)).sum() / n
