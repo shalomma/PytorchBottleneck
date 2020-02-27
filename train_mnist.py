@@ -41,7 +41,11 @@ class Train:
         for i in range(self.epochs):
             to_print = ''
             for phase in ['train', 'test']:
-                running_loss = 0.0
+                phase_loss = 0.0
+                phase_labels = torch.tensor([], dtype=torch.long).to(self.device)
+                phase_outputs = torch.tensor([]).to(self.device)
+                phase_mi_xt = 0.0
+                phase_mi_ty = 0.0
 
                 for inputs, labels in loader[phase]:
                     inputs, labels = inputs.to(self.device), labels.to(self.device)
@@ -58,9 +62,11 @@ class Train:
                             loss.backward()
                             self.config.optimizer.step()
 
-                    running_loss += loss.item()
+                    phase_loss += loss.item()
                     self.losses[phase].append(loss)
-                    # acc = (labels == outputs.argmax(dim=1)).sum() / float(len(inputs))
+
+                    phase_labels = torch.cat((phase_labels, labels))
+                    phase_outputs = torch.cat((phase_outputs, outputs))
 
                     # if i % 10 == 0:
                     #     running_mi_xt = []
@@ -75,8 +81,11 @@ class Train:
                     #     self.running_mis_xt[phase].append(running_mi_xt)
                     #     self.running_mis_ty[phase].append(running_mi_ty)
 
-                to_print += f'{phase}: loss {running_loss:>.4f} '  # - acc {acc:>.4f} \t'
-                self.losses[phase].append(running_loss)
+                n = float(len(loader[phase].dataset))
+                loss = phase_loss / n
+                acc = (phase_labels == phase_outputs.argmax(dim=1)).sum() / n
+                to_print += f'{phase}: loss {loss:>.4f} - acc {acc:>.4f} \t'
+                self.losses[phase].append(loss)
             print(f'Epoch {i:>4}: {to_print}')
 
     def plot_losses(self):

@@ -73,7 +73,7 @@ if '__main__' == __name__:
     print(f'to device: {device}')
     net = FeedForward(input_size, hidden_sizes, output_size).to(device)
 
-    criterion = torch.nn.CrossEntropyLoss()
+    criterion = torch.nn.CrossEntropyLoss(reduction='sum')
     optimizer = torch.optim.Adam(net.parameters(), lr=0.01)
 
     cfg = TrainConfig(net, criterion, optimizer)
