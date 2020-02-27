@@ -70,7 +70,7 @@ class Train:
 
                     if i % 10 == 0:
                         for j in range(len(self.config.model.hidden_sizes)):
-                            activity = hiddens[j].detach().numpy()
+                            activity = hiddens[j].cpu().detach().numpy()
                             label_masks = self.get_label_masks(labels)
                             binxm, binym = simplebinmi.bin_calc_information2(label_masks, activity, bin_size)
                             phase_mi_xt += nats2bits * binxm
