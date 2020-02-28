@@ -13,7 +13,6 @@ class FeedForward(torch.nn.Module):
         for h in hidden_sizes:
             self.layers.append(torch.nn.Linear(prev, h))
             prev = h
-        self.sigmoid = torch.nn.Sigmoid()
 
     def forward(self, x):
         hiddens = []

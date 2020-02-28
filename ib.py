@@ -1,8 +1,10 @@
 import numpy as np
-import utils
 import torch
 from random import seed
+from torch.utils.data import DataLoader
 
+from utils import get_ib_data
+from dataset import IBDataset
 from network import FeedForward
 from train import Train, TrainConfig
 
@@ -19,7 +21,18 @@ def tensor_casting(dataset):
 
 if '__main__' == __name__:
 
-    trn, tst = utils.get_ib_data()
+    data = dict()
+    data['train'] = IBDataset(train=True)
+    data['test'] = IBDataset(train=False)
+
+    n_train = len(data['train'])
+    n_test = len(data['test'])
+
+    loader = dict()
+    loader['train'] = DataLoader(data['train'], batch_size=n_train, shuffle=False)
+    loader['test'] = DataLoader(data['test'], batch_size=n_test, shuffle=False)
+
+    trn, tst = get_ib_data()
 
     x_train, y_train, c_train = tensor_casting(trn)
     x_test, y_test, c_test = tensor_casting(tst)
@@ -35,18 +48,23 @@ if '__main__' == __name__:
     data['test']['class'] = c_test
 
     # setup
-    input_size = x_train.shape[1]
-    output_size = y_train.shape[1]
+    input_size = 12
+    output_size = 2
     hidden_sizes = [10, 7, 5, 4, 3]
     net = FeedForward(input_size, hidden_sizes, output_size)
 
     # criterion = torch.nn.CrossEntropyLoss()
+    # criterion = torch.nn.BCEWithLogitsLoss(reduction='sum')
     criterion = torch.nn.BCEWithLogitsLoss()
+    # criterion = torch.nn.CrossEntropyLoss(reduction='sum')
     optimizer = torch.optim.SGD(net.parameters(), lr=0.01, momentum=0.9)
+    # optimizer = torch.optim.Adam(net.parameters(), lr=0.01)
 
     cfg = TrainConfig(net, criterion, optimizer)
     train = Train(cfg)
-    train.epochs = 5000
+    train.epochs = 10000
+    # train.n_classes = 2
+    # train.mi_cycle = 200
     train.run(data)
     train.plot_losses()
     train.plot_info_plan('train')

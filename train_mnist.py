@@ -51,7 +51,7 @@ class Train:
                 phase_outputs = torch.tensor([]).to(self.device)
 
                 for inputs, labels in loader[phase]:
-                    inputs, labels = inputs.to(self.device), labels.to(self.device)
+                    inputs, labels = inputs, labels
                     if phase == 'train':
                         self.config.model.train()
                     else:
