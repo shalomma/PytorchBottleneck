@@ -68,18 +68,18 @@ if '__main__' == __name__:
     # setup
     input_size = 28 * 28
     output_size = 10
-    hidden_sizes = [1024, 20, 20, 20, 20]
+    hidden_sizes = [40, 20, 10, 10]
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f'to device: {device}')
     net = FeedForward(input_size, hidden_sizes, output_size).to(device)
 
     criterion = torch.nn.CrossEntropyLoss(reduction='sum')
-    optimizer = torch.optim.Adam(net.parameters(), lr=0.01)
+    optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
 
     cfg = TrainConfig(net, criterion, optimizer)
     train = Train(cfg)
     train.epochs = 100
-    train.mi_cycle = 10
+    train.mi_cycle = 2
     train.run(loader)
     train.plot_losses()
     train.plot_info_plan('train')
