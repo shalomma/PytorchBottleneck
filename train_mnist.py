@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import simplebinmi
 
 
@@ -119,8 +120,7 @@ class Train:
         for j in range(len(running_mis_xt[:, 0])):
             plt.plot(running_mis_xt[j, :], running_mis_ty[j, :], alpha=0.1, zorder=0)
 
-        cbar = plt.colorbar()
-        cbar.ax.set_yticklabels(['0', '', '', '', '', '', f'{self.epochs}'])
+        cbar = plt.colorbar(format=ticker.FuncFormatter(lambda x, pos: int(x * self.mi_cycle)))
         cbar.set_label('Epochs')
 
         plt.xlabel('I(X;T)')
