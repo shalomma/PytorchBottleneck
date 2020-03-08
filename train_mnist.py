@@ -5,10 +5,11 @@ import simplebinmi
 
 
 class TrainConfig:
-    def __init__(self, model, criterion, optimizer):
+    def __init__(self, model, criterion, optimizer, scheduler=None):
         self.model = model
         self.criterion = criterion
         self.optimizer = optimizer
+        self.scheduler = scheduler
 
 
 class Train:
@@ -87,6 +88,9 @@ class Train:
                 acc = (phase_labels == phase_outputs.argmax(dim=1)).sum() / n
                 to_print += f'{phase}: loss {loss:>.4f} - acc {acc:>.4f} \t'
                 self.losses[phase].append(loss)
+                if phase == 'test':
+                    if self.config.scheduler is not None:
+                        self.config.scheduler.step(loss)
             print(f'Epoch {i:>4}: {to_print}')
 
     def plot_losses(self):
@@ -94,16 +98,16 @@ class Train:
         for phase in ['train', 'test']:
             plt.plot(self.losses[phase], label=phase)
         plt.legend()
-        plt.show()
         plt.savefig('losses.png')
+        plt.show()
 
     def plot_info_plan(self, phase):
         plt.figure()
         plt.title(phase)
         plt.plot(self.running_mis_xt[phase])
-        plt.plot(self.running_mis_ty[phase])
-        plt.show()
+        plt.ylabel('I(X;T)')
         plt.savefig(f'plot_{phase}.png')
+        plt.show()
 
         running_mis_xt = np.array(self.running_mis_xt[phase])
         running_mis_ty = np.array(self.running_mis_ty[phase])
@@ -115,7 +119,7 @@ class Train:
         for j in range(len(running_mis_xt[:, 0])):
             plt.plot(running_mis_xt[j, :], running_mis_ty[j, :], alpha=0.1, zorder=0)
         plt.colorbar()
-        plt.xlabel('I(X;M)')
-        plt.ylabel('I(Y;M)')
-        plt.show()
+        plt.xlabel('I(X;T)')
+        plt.ylabel('I(Y;T)')
         plt.savefig(f'IP_{phase}.png')
+        plt.show()

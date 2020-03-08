@@ -15,6 +15,7 @@ class Train:
     def __init__(self, config):
         self.config = config
         self.epochs = 5000
+        self.mi_cycle = 10
 
         self.losses = dict()
         self.running_mis_xt = dict()
@@ -62,7 +63,7 @@ class Train:
                 acc = (data[phase]['class'] == outputs.argmax(dim=1)).sum() / float(len(data[phase]['labels']))
 
                 to_print += f'{phase}: loss {loss:>.4f} - acc {acc:>.4f} \t'
-                if i % 200 == 0:
+                if i % self.mi_cycle == 0:
                     running_mi_xt = []
                     running_mi_ty = []
                     for j in range(len(self.config.model.hidden_sizes)):
@@ -81,13 +82,15 @@ class Train:
         for phase in ['train', 'test']:
             plt.plot(self.losses[phase], label=phase)
         plt.legend()
+        plt.savefig('losses.png')
         plt.show()
 
     def plot_info_plan(self, phase):
         plt.figure()
         plt.title(phase)
         plt.plot(self.running_mis_xt[phase])
-        plt.plot(self.running_mis_ty[phase])
+        plt.ylabel('I(X;T)')
+        plt.savefig(f'Ixm_{phase}.png')
         plt.show()
 
         running_mis_xt = np.array(self.running_mis_xt[phase])
@@ -100,6 +103,7 @@ class Train:
         for j in range(len(running_mis_xt[:, 0])):
             plt.plot(running_mis_xt[j, :], running_mis_ty[j, :], alpha=0.1, zorder=0)
         plt.colorbar()
-        plt.xlabel('I(X;M)')
-        plt.ylabel('I(Y;M)')
+        plt.xlabel('I(X;T)')
+        plt.ylabel('I(Y;T)')
+        plt.savefig(f'IP_{phase}.png')
         plt.show()
