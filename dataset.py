@@ -5,12 +5,16 @@ import scipy.io as sio
 
 
 class MNIST(datasets.MNIST):
-    def __init__(self, root, train=True, download=False):
+    def __init__(self, root, train=True, download=False, randomize=False):
         super(MNIST, self).__init__(root, train, download)
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.data = self.data / 255.0
         self.data = self.data.view(-1, 28 * 28).to(device)
+
+        if randomize:
+            idx_rnd = torch.randperm(len(self.targets))
+            self.targets = self.targets[idx_rnd]
 
     def __getitem__(self, index):
         img, targets = self.data[index], self.targets[index]
