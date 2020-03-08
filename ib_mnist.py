@@ -15,7 +15,7 @@ torch.manual_seed(1234)
 if '__main__' == __name__:
 
     data = dict()
-    data['train'] = MNIST('./dataset', train=True, download=True)
+    data['train'] = MNIST('./dataset', train=True, download=True, randomize=False)
     data['test'] = MNIST('./dataset', train=False)
 
     loader = dict()
@@ -25,7 +25,7 @@ if '__main__' == __name__:
     # setup
     input_size = 28 * 28
     output_size = 10
-    hidden_sizes = [100, 100, 20, 10]
+    hidden_sizes = [40, 40, 40, 20, 10]
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f'to device: {device}')
     net = FeedForward(input_size, hidden_sizes, output_size).to(device)
@@ -35,7 +35,7 @@ if '__main__' == __name__:
 
     cfg = TrainConfig(net, criterion, optimizer)
     train = Train(cfg)
-    train.epochs = 100
+    train.epochs = 1000
     train.mi_cycle = 1
     train.run(loader)
     train.plot_losses()
