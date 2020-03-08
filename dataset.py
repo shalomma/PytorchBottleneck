@@ -9,6 +9,7 @@ class MNIST(datasets.MNIST):
         super(MNIST, self).__init__(root, train, download)
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.targets = self.targets.to(device)
         self.data = self.data / 255.0
         self.data = self.data.view(-1, 28 * 28).to(device)
 
