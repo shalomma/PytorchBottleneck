@@ -118,7 +118,11 @@ class Train:
             plt.scatter(running_mis_xt[:, j], running_mis_ty[:, j], c=c, cmap='plasma', s=20, alpha=0.85, zorder=1)
         for j in range(len(running_mis_xt[:, 0])):
             plt.plot(running_mis_xt[j, :], running_mis_ty[j, :], alpha=0.1, zorder=0)
-        plt.colorbar()
+
+        cbar = plt.colorbar()
+        cbar.ax.set_yticklabels(['0', '', '', '', '', '', f'{self.epochs}'])
+        cbar.set_label('Epochs')
+
         plt.xlabel('I(X;T)')
         plt.ylabel('I(Y;T)')
         plt.savefig(f'IP_{phase}.png')
