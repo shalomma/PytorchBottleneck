@@ -25,6 +25,8 @@ def bin_calc_information(inputdata, layerdata, num_of_bins):
 
 def bin_calc_information2(labelixs, layerdata, binsize):
     # This is even further simplified, where we use np.floor instead of digitize
+    nats2bits = 1.0 / np.log(2)
+
     def get_h(d):
         digitized = np.floor(d / binsize).astype('int')
         p_ts, _ = get_unique_probs( digitized )
@@ -35,4 +37,4 @@ def bin_calc_information2(labelixs, layerdata, binsize):
     for label, ixs in labelixs.items():
         h = get_h(layerdata[ixs])
         H_LAYER_GIVEN_OUTPUT += ixs.mean() * h
-    return H_LAYER, H_LAYER - H_LAYER_GIVEN_OUTPUT
+    return nats2bits * H_LAYER, nats2bits * (H_LAYER - H_LAYER_GIVEN_OUTPUT)
