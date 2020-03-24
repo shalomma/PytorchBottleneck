@@ -40,6 +40,7 @@ if '__main__' == __name__:
     train.epochs = 4000
     train.mi_cycle = 20
     train.run(loader)
+    train.dump()
 
     plot = Plotter(train)
     plot.plot_losses()

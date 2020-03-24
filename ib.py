@@ -67,6 +67,7 @@ if '__main__' == __name__:
     # train.n_classes = 2
     train.mi_cycle = 100
     train.run(data)
+    train.dump()
 
     plot = Plotter(train)
     plot.plot_losses()
