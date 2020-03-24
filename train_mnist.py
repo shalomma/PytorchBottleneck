@@ -1,3 +1,4 @@
+import pickle
 import torch
 import simplebinmi
 
@@ -18,10 +19,12 @@ class Train:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         self.losses = dict()
+        self.accuracy = dict()
         self.running_mis_xt = dict()
         self.running_mis_ty = dict()
         for phase in ['train', 'test']:
             self.losses[phase] = []
+            self.accuracy[phase] = []
             self.running_mis_xt[phase] = []
             self.running_mis_ty[phase] = []
 
@@ -81,9 +84,21 @@ class Train:
                 n = float(len(loader[phase].dataset))
                 loss = phase_loss / n
                 acc = (phase_labels == phase_outputs.argmax(dim=1)).sum() / n
+                self.accuracy[phase].append(acc)
+
                 to_print += f'{phase}: loss {loss:>.4f} - acc {acc:>.4f} \t'
                 self.losses[phase].append(loss)
                 if phase == 'test':
                     if self.config.scheduler is not None:
                         self.config.scheduler.step(loss)
             print(f'Epoch {i:>4}: {to_print}')
+
+    def dump(self):
+        tracking = {
+            'loss': self.losses,
+            'accuracy': self.accuracy,
+            'running_mis_xt': self.running_mis_xt,
+            'running_mis_ty': self.running_mis_ty,
+        }
+        with open('train.pkl', 'wb') as f:
+            pickle.dump(tracking, f)

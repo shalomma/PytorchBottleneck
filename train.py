@@ -1,3 +1,4 @@
+import pickle
 import torch
 import simplebinmi
 
@@ -73,3 +74,13 @@ class Train:
                     self.running_mis_xt[phase].append(running_mi_xt)
                     self.running_mis_ty[phase].append(running_mi_ty)
             print(f'Epoch {i:>4}: {to_print}')
+
+    def dump(self):
+        tracking = {
+            'loss': self.losses,
+            'accuracy': self.accuracy,
+            'running_mis_xt': self.running_mis_xt,
+            'running_mis_ty': self.running_mis_ty,
+        }
+        with open('train.pkl', 'wb') as f:
+            pickle.dump(tracking, f)
