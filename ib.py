@@ -7,6 +7,7 @@ from utils import get_ib_data
 from dataset import IBDataset
 from network import FeedForward
 from train import Train, TrainConfig
+from plotter import Plotter
 
 np.random.seed(1234)
 seed(1234)
@@ -64,8 +65,11 @@ if '__main__' == __name__:
     train = Train(cfg)
     train.epochs = 10000
     # train.n_classes = 2
-    # train.mi_cycle = 200
+    train.mi_cycle = 100
     train.run(data)
-    train.plot_losses()
-    train.plot_info_plan('train')
-    train.plot_info_plan('test')
+
+    plot = Plotter(train)
+    plot.plot_losses()
+    plot.plot_accuracy()
+    plot.plot_info_plan('train')
+    plot.plot_info_plan('test')
