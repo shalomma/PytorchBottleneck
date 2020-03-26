@@ -15,6 +15,7 @@ class Train:
         self.config = config
         self.epochs = 5000
         self.mi_cycle = 1
+        self.n_layers = None
 
         self.losses = dict()
         self.accuracy = dict()
@@ -38,6 +39,7 @@ class Train:
         return samples_split
 
     def run(self, data):
+        self.n_layers = self.config.model.n_layers
         class_masks = self.get_class_masks(data)
 
         for i in range(self.epochs):
@@ -65,7 +67,7 @@ class Train:
                 if i % self.mi_cycle == 0:
                     running_mi_xt = []
                     running_mi_ty = []
-                    for j in range(len(self.config.model.hidden_sizes)):
+                    for j in range(self.n_layers):
                         activity = hiddens[j].detach().numpy()
                         binxm, binym = simplebinmi.bin_calc_information(class_masks[phase], activity, binsize=0.07)
                         running_mi_xt.append(binxm)
@@ -77,7 +79,9 @@ class Train:
 
     def dump(self):
         tracking = {
-            'loss': self.losses,
+            'n_layers': self.n_layers,
+            'mi_cycle': self.mi_cycle,
+            'losses': self.losses,
             'accuracy': self.accuracy,
             'running_mis_xt': self.running_mis_xt,
             'running_mis_ty': self.running_mis_ty,

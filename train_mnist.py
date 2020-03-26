@@ -16,6 +16,7 @@ class Train:
         self.config = config
         self.epochs = 5000
         self.mi_cycle = 10
+        self.n_layers = None
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         self.losses = dict()
@@ -41,7 +42,7 @@ class Train:
 
     def run(self, loader):
         class_masks = self.get_class_masks(loader)
-
+        self.n_layers = self.config.model.n_layers
         for i in range(self.epochs):
             to_print = ''
             for phase in ['train', 'test']:
@@ -72,7 +73,7 @@ class Train:
                     running_mi_xt = []
                     running_mi_ty = []
                     _, hiddens = self.config.model(loader[phase].dataset.data)
-                    for j in range(len(self.config.model.hidden_sizes)):
+                    for j in range(self.n_layers):
                         activity = hiddens[j].cpu().detach().numpy()
                         binxm, binym = simplebinmi.bin_calc_information(class_masks[phase], activity, binsize=0.5)
                         running_mi_xt.append(binxm)
@@ -95,7 +96,9 @@ class Train:
 
     def dump(self):
         tracking = {
-            'loss': self.losses,
+            'n_layers': self.n_layers,
+            'mi_cycle': self.mi_cycle,
+            'losses': self.losses,
             'accuracy': self.accuracy,
             'running_mis_xt': self.running_mis_xt,
             'running_mis_ty': self.running_mis_ty,
