@@ -85,7 +85,7 @@ class Train:
                 n = float(len(loader[phase].dataset))
                 loss = phase_loss / n
                 acc = (phase_labels == phase_outputs.argmax(dim=1)).sum() / n
-                self.accuracy[phase].append(acc)
+                self.accuracy[phase].append(float(acc))
 
                 to_print += f'{phase}: loss {loss:>.4f} - acc {acc:>.4f} \t'
                 self.losses[phase].append(loss)

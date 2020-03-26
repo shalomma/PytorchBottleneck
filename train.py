@@ -61,7 +61,7 @@ class Train:
                 loss = loss.item()
                 self.losses[phase].append(loss)
                 acc = (data[phase]['class'] == outputs.argmax(dim=1)).sum() / float(len(data[phase]['labels']))
-                self.accuracy[phase].append(acc)
+                self.accuracy[phase].append(float(acc))
 
                 to_print += f'{phase}: loss {loss:>.4f} - acc {acc:>.4f} \t'
                 if i % self.mi_cycle == 0:
