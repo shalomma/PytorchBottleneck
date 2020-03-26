@@ -6,7 +6,6 @@ import matplotlib.ticker as ticker
 class Plotter:
     def __init__(self, trainer):
         self.trainer = trainer
-        self.n_layers = self.trainer.config.model.n_layers
 
     def plot_losses(self):
         plt.figure()
@@ -33,7 +32,7 @@ class Plotter:
 
         fig, ax = plt.subplots()
         plt.title(phase)
-        for i in range(self.n_layers):
+        for i in range(self.trainer.n_layers):
             plt.plot(running_mis_xt[:, i], label=f'{i}')
         plt.legend()
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(self.format_epochs))
@@ -44,7 +43,7 @@ class Plotter:
         plt.figure()
         plt.title(f'IP - {phase}')
         c = list(range(len(running_mis_xt[:, 0])))
-        for j in range(self.n_layers):
+        for j in range(self.trainer.n_layers):
             plt.scatter(running_mis_xt[:, j], running_mis_ty[:, j], c=c, cmap='plasma', s=20, alpha=0.85, zorder=1)
         for j in range(len(running_mis_xt[:, 0])):
             plt.plot(running_mis_xt[j, :], running_mis_ty[j, :], alpha=0.1, zorder=0)
