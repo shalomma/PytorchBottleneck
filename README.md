@@ -12,7 +12,6 @@ SGD has two consecutive phases. First, the fitting phase where the layers increa
 The evolution of layers on the IP (a) for the task of the binary classification with a simple DNN. (b) for multi-class classification on MNIST. The colors indicate the number of trainingepochs with SGD
 
 ### Memorization
-A modification of the commonly used Euclidean loss, which helps to more reliably estimate shallow depths, as well as deep depths.
 ![Alt text](./images/mem.png)
 From Zhang et al [3]: Fitting random labels and random pixels on CIFAR10. (a) shows the training loss of
 various experiment settings decaying with the training steps. (b) shows the relative convergence
