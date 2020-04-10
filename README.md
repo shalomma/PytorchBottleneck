@@ -8,7 +8,7 @@ By  applying  ideas  from  information  theory  Tishby  et  al  [1]  proposed  a
 ##  Introduction
 ###  Information Bottleneck
 SGD has two consecutive phases. First, the fitting phase where the layers increase the information about the output.  Second, a much longer phase, the compression phase,the layers reduce the information about the input  
-![Alt text](./images/ib.png)
+![](./images/ib.png)  
 The evolution of layers on the IP (a) for the task of the binary classification with a simple DNN. (b) for multi-class classification on MNIST. The colors indicate the number of trainingepochs with SGD
 
 ### Memorization
@@ -20,15 +20,17 @@ time with different label corruption ratio. (c) shows the test error (also the g
 training error is 0) under different label corruptions
 
 ## Results on Random Labels
-
+I repeated the experiment on the MNIST data, but this time I randomly shuffle the labels.
+Zhang et al [3] showed that it will take more training time but eventually the same DNN will converge to the same training error as in the true label case. 
+Thus, we can conclude that a DNN, with a big enough capacity, has in fact the ability to memorize a given training set (though with poor generalization error).
 ![Alt text](./images/ib_results.png)
-In the upper row, the evolution of layers on the IP in thecase  of  (a)  true  labels  and  (b)  random  labels.   In  the  bottom  row,theI(X, T) of the 5 last layers in the case of (c) true labels and (d)random labels as a function of epochs
+In the upper row, the evolution of layers on the IP in the case  of  (a)  true  labels  and  (b)  random  labels.   In  the  bottom  row, the I(X, T) of the 5 last layers in the case of (c) true labels and (d)random labels as a function of epochs
 
 ## Development
 ### Prerequisites
 * Python 3.6
 * PyTorch 1.4
-* TorchVision 0.2.1
+* TorchVision 0.5.0
 <br />
 
 ```sh
